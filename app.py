@@ -61,7 +61,6 @@ st.markdown("""
         opacity: 0.92;
     }
 
-    /* Hide Streamlit default top bar */
     header {
         visibility: hidden;
         height: 0px;
@@ -71,18 +70,10 @@ st.markdown("""
         display: none !important;
     }
 
-    /* General text */
     p, label, div, span {
         color: #f8fafc;
     }
 
-    /* File uploader label */
-    section[data-testid="stFileUploader"] label,
-    section[data-testid="stFileUploader"] > div {
-        color: #f8fafc !important;
-    }
-
-    /* Drag and drop box text */
     [data-testid="stFileUploaderDropzone"] {
         background: rgba(255,255,255,0.06);
         border: 1px dashed rgba(255,255,255,0.25);
@@ -93,34 +84,31 @@ st.markdown("""
         color: #f8fafc !important;
     }
 
-    /* Uploaded file name */
+    [data-testid="stFileUploader"] small,
+    [data-testid="stFileUploader"] span,
+    [data-testid="stFileUploaderFile"] *,
     [data-testid="stFileUploaderFileName"] {
-        color: #ffffff !important;
+        color: #f8fafc !important;
         font-weight: 600;
     }
 
-    /* Small helper text like file limit */
     .stCaption, .stCaption p {
         color: #cbd5e1 !important;
     }
 
-    /* Markdown headings inside cards */
     h1, h2, h3, h4, h5, h6 {
         color: #ffffff !important;
     }
 
-    /* Dataframe area */
     div[data-testid="stDataFrame"] {
         border-radius: 12px;
         overflow: hidden;
     }
 
-    /* Success/info/error text */
     div[data-testid="stAlertContainer"] * {
         color: inherit !important;
     }
-            
-    /* Fix Browse files button */
+
     [data-testid="stBaseButton-secondary"] {
         background: linear-gradient(90deg, #00c9a7, #0072ff) !important;
         color: white !important;
@@ -132,11 +120,58 @@ st.markdown("""
     [data-testid="stBaseButton-secondary"]:hover {
         opacity: 0.9 !important;
     }
+
+    [data-testid="stFileUploader"] svg,
+    [data-testid="stDataFrame"] svg,
+    [data-testid="stDownloadButton"] svg {
+        fill: #f8fafc !important;
+        color: #f8fafc !important;
+    }
+
+    /* Fullscreen button outer circle/container */
+    button[title="View fullscreen"],
+    [data-testid="StyledFullScreenButton"],
+    [data-testid="StyledFullScreenButton"] button,
+    div[data-testid="StyledFullScreenButton"] {
+        background: rgba(255,255,255,0.10) !important;
+        color: #cbd5e1 !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        border-radius: 999px !important;
+        box-shadow: none !important;
+    }
+
+    button[title="View fullscreen"]:hover,
+    [data-testid="StyledFullScreenButton"]:hover,
+    [data-testid="StyledFullScreenButton"] button:hover {
+        background: rgba(255,255,255,0.16) !important;
+        color: #ffffff !important;
+    }
+
+    /* Fullscreen icon itself */
+    button[title="View fullscreen"] svg,
+    [data-testid="StyledFullScreenButton"] svg,
+    [data-testid="StyledFullScreenButton"] button svg,
+    [title="View fullscreen"] svg {
+        fill: #cbd5e1 !important;
+        color: #cbd5e1 !important;
+        stroke: #cbd5e1 !important;
+    }
+
+    button[title="View fullscreen"]:hover svg,
+    [data-testid="StyledFullScreenButton"]:hover svg,
+    [data-testid="StyledFullScreenButton"] button:hover svg {
+        fill: #ffffff !important;
+        color: #ffffff !important;
+        stroke: #ffffff !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 st.markdown('<div class="main-title">⚡ AutoML Pipeline</div>', unsafe_allow_html=True)
-st.markdown('<div class="subtitle">Upload any CSV — get a trained model, metrics, SHAP analysis and PDF report instantly</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="subtitle">Upload any CSV — get a trained model, metrics, SHAP analysis and PDF report instantly</div>',
+    unsafe_allow_html=True
+)
 
 uploaded = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
@@ -145,7 +180,7 @@ if uploaded:
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("<h3 style='color: white;'>📊 Data Preview</h3>", unsafe_allow_html=True)
-    st.dataframe(df.head(10), use_container_width=True)
+    st.dataframe(df.head(10), width="stretch")
     st.caption(f"{df.shape[0]} rows × {df.shape[1]} columns — last column used as target")
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -156,23 +191,23 @@ if uploaded:
 
                 st.success(f"✅ Task detected: **{task.capitalize()}** — Best model: **{best_name}**")
 
-                # ── Metrics ───────────────────────────────────────────────────
+                # Model comparison
                 st.markdown('<div class="card">', unsafe_allow_html=True)
                 st.markdown("### 📈 Model Comparison")
-                st.dataframe(results_df, use_container_width=True)
+                st.dataframe(results_df, width="stretch")
                 st.markdown('</div>', unsafe_allow_html=True)
 
-                # ── SHAP ──────────────────────────────────────────────────────
+                # SHAP
                 st.markdown('<div class="card">', unsafe_allow_html=True)
                 st.markdown("### 🔍 SHAP Feature Importance")
                 fig = get_shap_plot(best_model, X_test, features)
-                if fig:
+                if fig is not None:
                     st.pyplot(fig)
                 else:
-                    st.info("SHAP not available for this model type.")
+                    st.info("SHAP could not be generated for this dataset/model combination.")
                 st.markdown('</div>', unsafe_allow_html=True)
 
-                # ── Downloads ─────────────────────────────────────────────────
+                # Downloads
                 st.markdown('<div class="card">', unsafe_allow_html=True)
                 st.markdown("### 📥 Downloads")
 
