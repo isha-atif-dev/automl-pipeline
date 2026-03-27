@@ -172,8 +172,9 @@ st.markdown(
     '<div class="subtitle">Upload any CSV — get a trained model, metrics, SHAP analysis and PDF report instantly</div>',
     unsafe_allow_html=True
 )
-
+st.info("💡 For best results on this free hosted version, upload CSV files under **5MB**. For larger files, run the app locally.")
 uploaded = st.file_uploader("📂 Upload your CSV file", type=["csv"])
+
 
 if uploaded:
     df = pd.read_csv(uploaded)
