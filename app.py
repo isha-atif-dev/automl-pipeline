@@ -177,6 +177,13 @@ uploaded = st.file_uploader("📂 Upload your CSV file", type=["csv"])
 
 if uploaded:
     df = pd.read_csv(uploaded)
+    file_size_mb = uploaded.size / (1024 * 1024)
+    if file_size_mb > 50:
+        st.warning(f"⚠️ File is {file_size_mb:.1f}MB. For best performance on this free tier, keep files under 50MB.")
+    
+    if len(df) > 50000:
+        df = df.sample(n=50000, random_state=42)
+        st.info(f"ℹ️ Large dataset detected. Sampled 50,000 rows for faster processing.")
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
     st.markdown("<h3 style='color: white;'>📊 Data Preview</h3>", unsafe_allow_html=True)
